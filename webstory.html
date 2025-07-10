@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surprise Ulang Tahun Nazsya</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body, html { width:100%; height:100%; overflow:hidden; background:#e0f7ff; font-family:'Segoe UI', sans-serif; }
+    .story { display:flex; width:300%; height:100vh; transition:transform .8s ease; }
+    .slide { flex:0 0 100%; width:100%; height:100%; display:flex;
+      flex-direction:column; justify-content:center; align-items:center;
+      text-align:center; color:#003366; padding:20px; opacity:0; animation:fadeIn .8s forwards; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(20px);} to { opacity:1; transform:translateY(0);} }
+    h1 { font-size:2.5rem; margin-bottom:0.5em; }
+    p { font-size:1.2rem; max-width:600px; }
+    #nav { position:absolute; bottom:20px; display:flex; gap:10px; }
+    .dot { width:12px; height:12px; border-radius:50%; background:#ccc; cursor:pointer; transition:background .3s;}
+    .dot.active { background:#0099ff; }
+    audio { display:none; }
+    .countdown { font-size:1.5rem; margin-top:10px; }
+    button { margin-top:20px; padding:0.8em 1.5em; background:#0099ff; color:white; border:none; border-radius:5px; cursor:pointer; }
+  </style>
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+<body>
+
+  <div class="story" id="story">
+    <!-- Slide 1: Countdown -->
+    <section class="slide">
+      <h1>Hallo Nazsya! 🎉</h1>
+      <p>Menuju hari spesialmu:</p>
+      <div class="countdown" id="cd"></div>
+      <lottie-player src="https://assets4.lottiefiles.com/packages/lf20_x62chJ.json"
+        background="transparent" speed="1" style="width:200px;height:200px;" loop autoplay>
+      </lottie-player>
+    </section>
+    <!-- Slide 2: Ucapan -->
+    <section class="slide">
+      <h1>Selamat Ulang Tahun!</h1>
+      <p>🎂 Happy Birthday, Nazsya Nahdine Maulama Faza!</p>
+    </section>
+    <!-- Slide 3: Harapan -->
+    <section class="slide">
+      <h1>Harapan Kami</h1>
+      <p>Semoga kamu jadi pribadi lebih baik, sehat selalu, semangat mencari jati diri, dan meraih cita-cita.</p>
+    </section>
+    <!-- Slide 4: Pesan -->
+    <section class="slide">
+      <h1>Babak Baru 🚀</h1>
+      <p>Selamat menapaki babak baru penuh inspirasi dan kebahagiaan!</p>
+    </section>
+    <!-- Slide 5: Kejutan Akhir -->
+    <section class="slide">
+      <h1>Kejutan Akhir 🎁</h1>
+      <p>Klik tombol di bawah untuk kejutan spesial!</p>
+      <button id="whBtn">🎈 Kirim Ucapan via WhatsApp</button>
+    </section>
+  </div>
+
+  <div id="nav"></div>
+  <audio id="bgMusic" src="https://cdn.pixabay.com/download/audio/2021/10/18/audio_0feace57e5.mp3?filename=happy-birthday-6264.mp3" loop></audio>
+
+  <script>
+    const story = document.getElementById('story');
+    const slides = document.querySelectorAll('.slide');
+    const nav = document.getElementById('nav');
+    let current = 0;
+
+    slides.forEach((_,i) => {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i===0 ? ' active' : '');
+      dot.onclick = () => goTo(i);
+      nav.append(dot);
+    });
+
+    function goTo(i){
+      current = i;
+      story.style.transform = `translateX(-${i*100}vw)`;
+      document.querySelectorAll('.dot').forEach((d,idx) => d.classList.toggle('active', idx===i));
+      if(i===slides.length-1) playFinal();
+    }
+
+    function playFinal(){
+      document.getElementById('bgMusic').play();
+      // confetti
+      for(let i=0;i<150;i++){
+        const el = document.createElement('div');
+        Object.assign(el.style,{
+          position:'fixed', width:'8px', height:'8px',
+          background:['#0099ff','#ff66cc','#ffcc00','#66ff66'][Math.floor(Math.random()*4)],
+          left:Math.random()*100+'vw',
+          top:'-10px',
+          opacity:0.7,
+          transform:`rotate(${Math.random()*360}deg)`,
+          transition:`top ${2+Math.random()}s ease-in, opacity 2s`
+        });
+        document.body.append(el);
+        requestAnimationFrame(()=> el.style.top='110vh');
+        setTimeout(()=> el.style.opacity='0',3000);
+        setTimeout(()=> el.remove(),5000);
+      }
+    }
+
+    // Whatsapp button
+    document.getElementById('whBtn').onclick = () => {
+      const msg = encodeURIComponent(`Selamat ulang tahun, Nazsya! 🎈 Semoga bahagia selalu ya 💙`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    };
+
+    // Swipe
+    let sx=0;
+    story.addEventListener('touchstart',e=> sx=e.touches[0].clientX);
+    story.addEventListener('touchend',e=>{
+      const dx = e.changedTouches[0].clientX - sx;
+      if(dx<-50 && current<slides.length-1) goTo(current+1);
+      if(dx>50 && current>0) goTo(current-1);
+    });
+
+    // Countdown
+    function updateCd(){
+      const now = new Date();
+      const target = new Date('2025-07-12T00:00:00');
+      const diff = target - now;
+      if(diff<=0){ document.getElementById('cd').textContent='Hari ini!'; return; }
+      const d=Math.floor(diff/86400000);
+      const h=Math.floor(diff%86400000/3600000);
+      const m=Math.floor(diff%3600000/60000);
+      const s=Math.floor(diff%60000/1000);
+      document.getElementById('cd').textContent=`${d}h ${h}j ${m}m ${s}d`;
+    }
+    setInterval(updateCd,1000);
+    updateCd();
+  </script>
+</body>
+</html>
